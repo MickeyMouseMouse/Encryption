@@ -1,3 +1,4 @@
 # Encryption
-* RSA and AES algorithms
+* Text encryption/decryption
+* Algorithms: RSA, AES
 * GUI

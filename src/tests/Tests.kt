@@ -2,7 +2,6 @@ package tests
 
 import RSA
 import AES
-import java.nio.charset.Charset
 import javax.crypto.Cipher
 import javax.crypto.spec.SecretKeySpec
 
@@ -11,42 +10,58 @@ val aes = AES()
 
 fun main() {
     testRSA()
-    println("-------------------------")
     testAES()
-    //println("-------------------------")
-    //testAESWithRSA()
+    testAESWithRSA()
 }
 
 fun testRSA() {
     val pair = rsa.generateKeyPair()
 
-    val message = "TestMessage"
-    val code = rsa.encrypt(message.toByteArray(), pair.public)
-    val decode = rsa.decrypt(code!!.toByteArray(), pair.private)
-    println("$message = $decode")
+    val message = "TestMessage".toByteArray()
+    val code = rsa.encrypt(message, pair.public)
+    val decode = rsa.decrypt(code!!, pair.private)
+    if (message.contentEquals(decode!!))
+        println("RSA test passed")
+    else
+        println("RSA test failed")
 
-    val signature = rsa.makeSignature(message.toByteArray(), pair.private)
-    println(rsa.verifySignature(message.toByteArray(), signature!!, pair.public))
+    val signature = rsa.makeSignature(message, pair.private)
+    if (rsa.verifySignature(message, signature!!, pair.public))
+        println("RSA signature test passed")
+    else
+        println("RSA signature test failed")
 }
 
 fun testAES() {
     val secretKey = aes.generateKey()
 
-    val message = "TestMessage"
-    val code = aes.applyAlgorithm(message.toByteArray(), secretKey, Cipher.ENCRYPT_MODE)
-    val decode = String(aes.applyAlgorithm(code!!, secretKey, Cipher.DECRYPT_MODE)!!, Charset.defaultCharset())
-    println("$message = $decode")
+    val message = "TestMessage".toByteArray()
+    val code = aes.applyAlgorithm(message, secretKey, Cipher.ENCRYPT_MODE)
+    val decode = aes.applyAlgorithm(code!!, secretKey, Cipher.DECRYPT_MODE)
+    if (message.contentEquals(decode!!))
+        println ("AES test passed")
+    else
+        println("AES test failed")
 }
 
-/*
 fun testAESWithRSA() {
     val pair = rsa.generateKeyPair()
     val secretKey = aes.generateKey()
 
     val encryptedSecretKey = rsa.encrypt(secretKey.encoded, pair.public)
-    val decryptedSecretKey = rsa.decrypt(encryptedSecretKey!!.toByteArray(), pair.private)
-    val secretKeyRestored = SecretKeySpec(decryptedSecretKey!!.toByteArray(), "AES")
+    val decryptedSecretKey = rsa.decrypt(encryptedSecretKey!!, pair.private)
+    val secretKeyRestored = SecretKeySpec(decryptedSecretKey!!, "AES")
 
-    println(secretKey == secretKeyRestored)
+    if (secretKey == secretKeyRestored)
+        println("AESWithRSA test passed")
+    else
+        println("AESWithRSA test failed")
 }
-*/
+
+/*
+Some important info:
+    String(file.readBytes(), Charset.defaultCharset())
+    String(file.readBytes(), UTF_8)
+
+    https://upread.ru/blog/articles-it/base64-java
+ */

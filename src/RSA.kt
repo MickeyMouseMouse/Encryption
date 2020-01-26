@@ -1,6 +1,4 @@
-import java.nio.charset.StandardCharsets.UTF_8
 import java.security.*
-import java.util.*
 import javax.crypto.Cipher
 
 class RSA {
@@ -10,37 +8,37 @@ class RSA {
         return generator.generateKeyPair()
     }
 
-    fun encrypt(message: ByteArray, publicKey: PublicKey): String? {
+    fun encrypt(message: ByteArray, publicKey: PublicKey): ByteArray? {
         return try {
             val cipher = Cipher.getInstance("RSA")
             cipher.init(Cipher.ENCRYPT_MODE, publicKey)
-            return Base64.getEncoder().encodeToString(cipher.doFinal(message))
+            cipher.doFinal(message)
         } catch (e: Exception) { null }
     }
 
-    fun decrypt(code: ByteArray, privateKey: PrivateKey): String? {
+    fun decrypt(code: ByteArray, privateKey: PrivateKey): ByteArray? {
         return try {
             val cipher = Cipher.getInstance("RSA")
             cipher.init(Cipher.DECRYPT_MODE, privateKey)
-            return String(cipher.doFinal(Base64.getDecoder().decode(code)), UTF_8)
+            return cipher.doFinal(code)
         } catch(e: Exception) { null }
     }
 
-    fun makeSignature(message: ByteArray, privateKey: PrivateKey): String? {
+    fun makeSignature(message: ByteArray, privateKey: PrivateKey): ByteArray? {
         return try {
             val privateSignature = Signature.getInstance("SHA256withRSA")
             privateSignature.initSign(privateKey)
             privateSignature.update(message)
-            Base64.getEncoder().encodeToString(privateSignature.sign())
+            privateSignature.sign()
         } catch(e: Exception) { null }
     }
 
-    fun verifySignature(message: ByteArray, signature: String, publicKey: PublicKey): Boolean {
+    fun verifySignature(message: ByteArray, signature: ByteArray, publicKey: PublicKey): Boolean {
         return try {
             val publicSignature = Signature.getInstance("SHA256withRSA")
             publicSignature.initVerify(publicKey)
             publicSignature.update(message)
-            publicSignature.verify(Base64.getDecoder().decode(signature))
+            publicSignature.verify(signature)
         } catch (e: Exception) { false }
     }
 }

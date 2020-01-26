@@ -1,5 +1,4 @@
 import java.io.File
-import java.nio.charset.Charset
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.security.KeyFactory
@@ -14,7 +13,7 @@ class ModelRSA {
     private var data: ByteArray? = null
     private var publicKey: PublicKey? = null
     private var privateKey: PrivateKey? = null
-    private var signature: String? = null
+    private var signature: ByteArray? = null
 
     fun generateKeyPair(filePublicKey: File, filePrivateKey: File) {
         val keyPair = rsa.generateKeyPair()
@@ -42,9 +41,7 @@ class ModelRSA {
         } catch (e: Exception) { false }
     }
 
-    fun setSignature(file: File) {
-        signature = String(file.readBytes(), Charset.defaultCharset())
-    }
+    fun setSignature(file: File) { signature = file.readBytes() }
 
     fun canEncrypt(): Boolean {
         if (data == null) return false
@@ -72,11 +69,11 @@ class ModelRSA {
         return writeDownResult(file, result)
     }
 
-    private fun writeDownResult(file: File, result: String?): String {
+    private fun writeDownResult(file: File, result: ByteArray?): String {
         return if (result == null) {
             "Failed"
         } else {
-            file.writeText(result)
+            file.writeBytes(result)
             "Done"
         }
     }
